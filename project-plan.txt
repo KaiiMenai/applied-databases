@@ -1,0 +1,7 @@
+conference-assessment/
+├── venv/                 # Virtual environment
+├── neo4j-dump/           # Neo4j database backup
+├── conference_menu.py    # Main Python program
+├── dump.sql              # MySQL database dump
+├── requirements.txt      # Dependencies
+└── README.md             # Setup instructions

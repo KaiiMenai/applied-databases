@@ -1,52 +1,38 @@
-<!DOCTYPE html>
-<html  lang="en" xml:lang="en">
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-                <title>Redirect</title>
-        <style>
-body {
-    margin: 0;
-    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
-    font-size: .9375rem;
-    font-weight: 400;
-    line-height: 1.5;
-    color: #343a40;
-    text-align: left;
-    background-color: #f2f2f2;
-}
-#page {
-    margin-top: 15px;
-    background: white;
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 15px;
-}
-#region-main {
-    margin: 0 auto;
-    border: 1px solid rgba(0,0,0,.125);
-    padding: 1rem 1.25rem 1.25rem;
-    background-color: #fff;
-}
-h1 {
-    font-size: 2.34rem;
-    margin: 0 0 .5rem;
-    font-weight: 300;
-    line-height: 1.2;
-}
-.alert-danger {
-    color: #6e211e;
-    background-color: #f6d9d8;
-    border-color: #f3c9c8;
-    padding: .75rem 1.25rem;
-}
-    </style>
-    </head>
-    <body>
-        <div id="page">
-            <div id="region-main">
-                <h1>Redirect</h1>
-                <div style="margin-top: 3em; margin-left:auto; margin-right:auto; text-align:center;">This page should automatically redirect. If nothing is happening please use the continue link below.<br /><a href="https://login.microsoftonline.com/common/oauth2/authorize?response_type=code&amp;client_id=6c8e3e92-860b-42bb-b474-1ab8ee243908&amp;scope=openid%20profile%20email&amp;nonce=N69e7caa754800&amp;response_mode=form_post&amp;state=LRLDibvWPl8lwdt&amp;redirect_uri=https%3A%2F%2Fvlegalwaymayo.atu.ie%2Fauth%2Foidc%2F&amp;resource=https%3A%2F%2Fgraph.microsoft.com">Continue</a></div>                            </div>
-        </div>
-    </body>
-</html>
+// # The version of this to import into the venv has been saved as attendeeNetork.dump, the original .json file is here for reference. 
+// # The .dump file was created using the neo4j-admin dump command, and can be imported using the neo4j-admin load command. The .json file is not used in the application.
+// ConferenceConnect Neo4j database
+// Create a database called attendeeNetwork and run the following statements in that database.
+MATCH (n) DETACH DELETE n;
 
+CREATE
+(:Attendee {AttendeeID: 101}),
+(:Attendee {AttendeeID: 102}),
+(:Attendee {AttendeeID: 103}),
+(:Attendee {AttendeeID: 104}),
+(:Attendee {AttendeeID: 105}),
+(:Attendee {AttendeeID: 106}),
+(:Attendee {AttendeeID: 107}),
+(:Attendee {AttendeeID: 108}),
+(:Attendee {AttendeeID: 109}),
+(:Attendee {AttendeeID: 110}),
+(:Attendee {AttendeeID: 111}),
+(:Attendee {AttendeeID: 113}),
+(:Attendee {AttendeeID: 114}),
+(:Attendee {AttendeeID: 115}),
+(:Attendee {AttendeeID: 116}),
+(:Attendee {AttendeeID: 117}),
+(:Attendee {AttendeeID: 118}),
+(:Attendee {AttendeeID: 120});
+
+MATCH (a:Attendee {AttendeeID: 101}), (b:Attendee {AttendeeID: 109}) CREATE (a)-[:CONNECTED_TO]->(b);
+MATCH (a:Attendee {AttendeeID: 101}), (b:Attendee {AttendeeID: 107}) CREATE (a)-[:CONNECTED_TO]->(b);
+MATCH (a:Attendee {AttendeeID: 102}), (b:Attendee {AttendeeID: 110}) CREATE (a)-[:CONNECTED_TO]->(b);
+MATCH (a:Attendee {AttendeeID: 103}), (b:Attendee {AttendeeID: 111}) CREATE (a)-[:CONNECTED_TO]->(b);
+MATCH (a:Attendee {AttendeeID: 104}), (b:Attendee {AttendeeID: 120}) CREATE (a)-[:CONNECTED_TO]->(b);
+MATCH (a:Attendee {AttendeeID: 105}), (b:Attendee {AttendeeID: 113}) CREATE (a)-[:CONNECTED_TO]->(b);
+MATCH (a:Attendee {AttendeeID: 106}), (b:Attendee {AttendeeID: 114}) CREATE (a)-[:CONNECTED_TO]->(b);
+MATCH (a:Attendee {AttendeeID: 107}), (b:Attendee {AttendeeID: 115}) CREATE (a)-[:CONNECTED_TO]->(b);
+MATCH (a:Attendee {AttendeeID: 108}), (b:Attendee {AttendeeID: 116}) CREATE (a)-[:CONNECTED_TO]->(b);
+MATCH (a:Attendee {AttendeeID: 111}), (b:Attendee {AttendeeID: 101}) CREATE (a)-[:CONNECTED_TO]->(b);
+MATCH (a:Attendee {AttendeeID: 106}), (b:Attendee {AttendeeID: 103}) CREATE (a)-[:CONNECTED_TO]->(b);
+MATCH (a:Attendee {AttendeeID: 120}), (b:Attendee {AttendeeID: 103}) CREATE (a)-[:CONNECTED_TO]->(b);
