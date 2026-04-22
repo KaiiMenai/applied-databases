@@ -4,7 +4,10 @@
 # Make sure to update the connection details (URI, USER, PASSWORD) to match your Neo4j setup before running the script.
 # author: Kyra Menai Hamilton
 
+import os
 from neo4j import GraphDatabase
+import mysql.connector
+from mysql.connector import Error
 
 class ConferenceDB:
     def __init__(self, uri, user, password):
