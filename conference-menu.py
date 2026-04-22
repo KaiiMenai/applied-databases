@@ -24,9 +24,7 @@ class ConferenceDB:
             result = session.run(query, name=search_string)
             return [record["name"] for record in result]
 
-# Query to search for speakers by Company (valid (numeric) company ID)
-# When a valid (numeric) company ID is entered, the company name is shown and the following details are shown for each attendee from that company: The name of each attendee, The date of birth of each attendee. The title of the session the attendee attended, The name of the speaker at the session the attendee attended, The name of the room the session was held in.
-
+# Query to search for speakers by Company (valid (numeric) company ID) - maybe this needs to be an integer instead of a string?
     def search_speakers_by_company(self, search_string):
         query = """
         MATCH (speaker:Attendee)
@@ -79,6 +77,8 @@ def main():
                 print(f"\nFound {len(speakers)} matching attendees from that company:")
                 for speaker in speakers:
                     print(f"- {speaker}")
+            elif not company_search:
+                print("Please enter a valid company ID.")
             else:
                 print("No attendees found from that company.")
         
