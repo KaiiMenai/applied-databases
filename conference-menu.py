@@ -317,13 +317,6 @@ def main():
             name_search = input("Enter speaker name letters: ").strip()
             result = db.search_speakers(name_search)
             print(f"\n{result}")
-            
-            if speakers:
-                print(f"\nFound {len(speakers)} sessions:")
-                for speaker, title, room in speakers:
-                    print(f"• {speaker} - '{title}' (Room: {room})")
-            else:
-                print("No speakers found with that name.")
                 
         elif choice == "2": # 2 - View Attendees by Company (FIXED - now uses SQLite to search by company ID)
             print("\nView Attendees by Company \n-----------------")
