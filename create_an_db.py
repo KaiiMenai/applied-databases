@@ -1,6 +1,8 @@
 # The database.
+
 # For ease for the assessment I decided that sqlite would be more user friendly than MySQL. 
 # The parts for the project would all then be in one place.
+
 # author: Kyra Menai Hamilton
 
 # I used an LLM (Perplexity) and asked it to help me rephrase the database in a way that would be suitable and meet sql3lite requirements due to the syntax differences between it and MySQL.  

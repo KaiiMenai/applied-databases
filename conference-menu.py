@@ -1,7 +1,9 @@
 # Conference Attendee Search Menu
+
 # This script provides a simple command-line interface to search for conference attendees by name.
 # It connects to a Neo4j database, retrieves matching attendees, and displays the results.
 # Make sure to update the connection details (URI, USER, PASSWORD) to match your Neo4j setup before running the script.
+
 # author: Kyra Menai Hamilton
 
 import os
