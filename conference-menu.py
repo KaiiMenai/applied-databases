@@ -216,8 +216,8 @@ class ConferenceDB:
         
         # TABLE FORMAT
         output = "Rooms:\n"
-        output += "Room ID | Room Name         | Capacity\n"
-        output += "--------|-------------------|---------\n"
+        output += "Room ID | Room Name        | Capacity\n"
+        output += "--------|------------------|---------\n"
         
         for room_id, room_name, capacity in rooms:
             output += f"{room_id:7} | {room_name:16} | {capacity}\n"
