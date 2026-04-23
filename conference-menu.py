@@ -197,7 +197,7 @@ class ConferenceDB:
             create_result = session.run(create_query, id1=attendee1_id, id2=attendee2_id)
             created = create_result.single()["created"]
         
-        return True, f"Connection created! Attendee {attendee1_id} is now connected to  Attendee {attendee2_id}."
+        return True, f"Connection created! Attendee {attendee1_id} is now connected to Attendee {attendee2_id}."
 
 # Option 6 - View rooms (FIXED - moved the room display to its own SQLite function)
     def view_rooms(self):
