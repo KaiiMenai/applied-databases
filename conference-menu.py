@@ -47,7 +47,32 @@ class ConferenceDB:
 
 # Option 2 - Neo4j by company (FIXED - no Company property yet)
     def search_speakers_by_company(self, company_id):
+        """Option 2: Company attendees + sessions with exact error conditions"""
+        
+        # ERROR 1: Check company exists
         cursor = self.sqlite_conn.cursor()
+        cursor.execute("SELECT companyName FROM company WHERE companyID = ?", (company_id,))
+        company = cursor.fetchone()
+        
+        if not company:
+            cursor.close()
+            return f"Company with ID {company_id} doesn't exist."
+        
+        # ERROR 2: Check if company has attendees + sessions
+        cursor.execute("""
+            SELECT COUNT(*) 
+            FROM attendee a 
+            JOIN registration reg ON a.attendeeID = reg.attendeeID
+            JOIN session s ON reg.sessionID = s.sessionID
+            WHERE a.attendeeCompanyID = ?
+        """, (company_id,))
+        
+        attendee_count = cursor.fetchone()[0]
+        if attendee_count == 0:
+            cursor.close()
+            return f"No attendees found for {company[0]}"
+        
+        # SUCCESS: Full table with 5 columns
         cursor.execute("""
             SELECT DISTINCT 
                 a.attendeeName,
@@ -63,11 +88,9 @@ class ConferenceDB:
             WHERE c.companyID = ?
             ORDER BY a.attendeeName, s.sessionTitle
         """, (company_id,))
+        
         results = cursor.fetchall()
         cursor.close()
-        
-        if not results:
-            return f"No attendees found for Company ID {company_id}."
         
         # TABLE FORMAT
         output = f"Company ID {company_id} Attendees & Sessions:\n\n"
@@ -114,7 +137,7 @@ class ConferenceDB:
         self.sqlite_conn.commit()
         cursor.close()
         
-        return True, f"Attendee successfully added! ID: {attendee_id}, {name}, {dob}, {gender} ({company[0]})"
+        return True, f"Attendee successfully added! ID: {attendee_id}, {name}, {dob}, {gender} ({company[0]})."
 
 # Option 4 - View connected attendees (FIXED - now checks Neo4j first, then SQLite, and shows connections)
     def view_connected_attendees(self, attendee_id):
@@ -322,14 +345,14 @@ def main():
                     print(f"*** ERROR *** Attendee ID {attendee_id} already exists. ({existing[0]})")
                     print("Please enter another ID.")
                     continue
-                print(f"Attendee ID {attendee_id} is available!")
+                print(f"Attendee ID {attendee_id} is available.")
                 break  # ID = DONE
     
             # 2. NAME VALIDATION LOOP
             while True:
                 name = input("Attendee Name: ").strip()
                 if not name:
-                    print("*** ERROR *** Name cannot be empty!")
+                    print("*** ERROR *** Name cannot be empty.")
                     continue
                 break  # Name = DONE
     
@@ -338,7 +361,7 @@ def main():
                 dob = input("Date of Birth (YYYY-MM-DD): ").strip()
                 # Basic date format check
                 if len(dob) != 10 or dob[4] != '-' or dob[7] != '-':
-                    print("*** ERROR *** Date format must be YYYY-MM-DD!")
+                    print("*** ERROR *** Date format must be YYYY-MM-DD.")
                     continue
                 break  # DOB = DONE
     
@@ -346,7 +369,7 @@ def main():
             while True:
                 gender = input("Gender (Male/Female): ").strip().title()
                 if gender not in ['Male', 'Female']:
-                    print("*** ERROR *** Gender must be 'Male' or 'Female'")
+                    print("*** ERROR *** Gender must be 'Male' or 'Female'.")
                     continue
                 break  # Gender = DONE
                 
@@ -354,7 +377,7 @@ def main():
             while True:
                 company_id_input = input("Company ID (1-9): ").strip()
                 if not company_id_input.isdigit() or not (1 <= int(company_id_input) <= 9):
-                    print("*** ERROR *** Company ID must be 1-9!")
+                    print("*** ERROR *** Company ID must be 1-9.")
                     continue
                 
                 company_id = int(company_id_input)
@@ -366,7 +389,7 @@ def main():
                 cursor.close()
 
                 if not company:
-                    print(f"*** ERROR *** Company ID {company_id} does not exist!")
+                    print(f"*** ERROR *** Company ID {company_id} does not exist.")
                     continue
                 
                 print(f"Company {company_id}: {company[0]}")
@@ -381,7 +404,7 @@ def main():
             
             # NON-NUMERIC CHECK FIRST
             if not attendee_search.isdigit():
-                print("*** ERROR *** Attendee ID must be numbers")
+                print("*** ERROR *** Attendee ID must be numbers.")
                 continue
             
             attendee_id = int(attendee_search)
@@ -395,14 +418,14 @@ def main():
                 # Attendee 1 input + validation
                 id1_input = input("Attendee 1 ID: ").strip()
                 if not id1_input.isdigit():
-                    print("*** ERROR *** Attendee 1 ID must be numbers")
+                    print("*** ERROR *** Attendee 1 ID must be numbers.")
                     continue
                 id1 = int(id1_input)
                 
                 # Attendee 2 input + validation  
                 id2_input = input("Attendee 2 ID: ").strip()
                 if not id2_input.isdigit():
-                    print("*** ERROR *** Attendee 2 ID must be numbers")
+                    print("*** ERROR *** Attendee 2 ID must be numbers.")
                     continue
                 id2 = int(id2_input)
                 
@@ -428,7 +451,7 @@ def main():
             print("Goodbye!")
             break
         else:
-            print("Invalid choice, try again")
+            print("Invalid choice, try again.")
     
     db.close()
 
