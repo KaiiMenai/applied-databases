@@ -29,6 +29,20 @@ class ConferenceDB:
         with self.driver.session(database="attendeenetwork") as session:
             result = session.run(query, name=search_string)
             return [record["name"] for record in result]
+
+# Option 1 - SQLite search (FIXED - now searches speakerName with LIKE)
+    def search_speakers_sessions(self, search_string):
+        cursor = self.sqlite_conn.cursor()
+        cursor.execute("""
+            SELECT DISTINCT s.speakerName, s.sessionTitle, r.roomName
+            FROM session s
+            JOIN room r ON s.roomID = r.roomID
+            WHERE LOWER(s.speakerName) LIKE LOWER(?)
+            ORDER BY s.speakerName, s.sessionTitle
+        """, (f'%{search_string}%',))
+        results = cursor.fetchall()
+        cursor.close()
+        return results
     
     # Option 2 - Neo4j by company (FIXED - no Company property yet)
     def search_speakers_by_company(self, company_id):
@@ -44,20 +58,7 @@ class ConferenceDB:
         cursor.close()
         return results
 
-    
-    def search_speakers_sessions(self, search_string):
-        cursor = self.sqlite_conn.cursor()
-        cursor.execute("""
-            SELECT DISTINCT s.speakerName, s.sessionTitle, r.roomName
-            FROM session s
-            JOIN room r ON s.roomID = r.roomID
-            WHERE LOWER(s.speakerName) LIKE LOWER(?)
-            ORDER BY s.speakerName, s.sessionTitle
-        """, (f'%{search_string}%',))
-        results = cursor.fetchall()
-        cursor.close()
-        return results
-
+# Option 3 - Add new attendee (FIXED - now with specific ID input and validation)
     def add_new_attendee(self, attendee_id, name, dob, gender, company_id):
         """Add new attendee with SPECIFIC attendeeID to SQLite"""
         cursor = self.sqlite_conn.cursor()
@@ -86,6 +87,63 @@ class ConferenceDB:
         
         return True, f"Attendee successfully added! ID: {attendee_id}, {name}, {dob}, {gender} ({company[0]})"
 
+# Option 4 - View connected attendees (FIXED - now checks Neo4j first, then SQLite, and shows connections)
+    def view_connected_attendees(self, attendee_id):
+        """Option 4: Find attendee + all CONNECTED_TO (both directions)"""
+        
+        # STEP 1: Check Neo4j first
+        with self.driver.session(database="attendeenetwork") as session:
+            query = """
+            MATCH (target:Attendee {AttendeeID: $id})
+            OPTIONAL MATCH (target)-[:CONNECTED_TO]-(connected:Attendee)
+            RETURN target.AttendeeID AS targetID,
+                collect(DISTINCT connected.AttendeeID) AS connectedIDs
+            """
+            result = session.run(query, id=attendee_id)
+            neo4j_result = result.single()
+        
+        if not neo4j_result:
+            # STEP 2: Check SQLite (exists but no Neo4j)
+            cursor = self.sqlite_conn.cursor()
+            cursor.execute("SELECT attendeeName FROM attendee WHERE attendeeID = ?", (attendee_id,))
+            sqlite_result = cursor.fetchone()
+            cursor.close()
+            
+            if sqlite_result:
+                return f"Attendee '{sqlite_result[0]}' (Attendee ID: {attendee_id}) \nAttendee Name: {sqlite_result[0]} \n----------------- \nNo connections"
+            else:
+                # STEP 3: Doesn't exist anywhere
+                return f"*** ERROR *** Attendee ID {attendee_id} does not exist."
+        
+        # STEP 4: Neo4j attendee exists - FIXED SQLite IN clause
+        target_id = neo4j_result["targetID"]
+        connected_ids = neo4j_result["connectedIDs"] or []
+        
+        # Get names from SQLite - DYNAMIC IN clause fix
+        cursor = self.sqlite_conn.cursor()
+        all_ids = [target_id] + connected_ids
+        placeholders = ','.join('?' * len(all_ids))
+        cursor.execute(f"SELECT attendeeID, attendeeName FROM attendee WHERE attendeeID IN ({placeholders})", all_ids)
+        names_dict = {row[0]: row[1] for row in cursor.fetchall()}
+        cursor.close()
+        
+        output = f"Attendee '{names_dict.get(target_id, 'Unknown')}' (ID: {target_id})\n\n"
+        
+        if connected_ids:
+            output += "These attendees are connected:\n"
+            output += "ID   | Name\n"
+            output += "-----|--------------------\n"
+            for conn_id in sorted(connected_ids):
+                name = names_dict.get(conn_id, 'Unknown')
+                output += f"{conn_id:4} | {name}\n"
+        else:
+            output += "\n----------------- \nNo connections"
+        
+        return output
+
+# Option 5 - Add attendee connection (FIXED - now just a placeholder message)
+
+# Menu display function
 def print_menu():
     print("\n=== Conference Attendee Search ===")
     print("1 - View Speakers & Sessions")      # SQLite: speaker+session+room
@@ -108,7 +166,7 @@ def main():
         print_menu()
         choice = input("Please enter your choice: ").strip()
         
-        if choice == "1":
+        if choice == "1": # 1 - View Speakers & Sessions (FIXED - now uses SQLite to search speakerName with LIKE)
             print("\n View Speakers & Sessions \n-----------------")
             name_search = input("Enter speaker name letters: ").strip()
             speakers = db.search_speakers_sessions(name_search)  # ← SQLite!
@@ -120,7 +178,7 @@ def main():
             else:
                 print("No speakers found with that name.")
                 
-        elif choice == "2":
+        elif choice == "2": # 2 - View Attendees by Company (FIXED - now uses SQLite to search by company ID)
             print("\nView Attendees by Company \n-----------------")
             company_search = input("Enter Company ID: ").strip()
             attendees = db.search_attendees_by_company(company_search)
@@ -132,7 +190,7 @@ def main():
             else:
                 print("No attendees found from that company.")
                 
-        elif choice == "3":
+        elif choice == "3": # 3 - Add New Attendee (FIXED - now with specific ID input and validation)
             print("\nAdd New Attendee \n-----------------")
     
             # 1. ATTENDEE ID VALIDATION LOOP
@@ -207,6 +265,22 @@ def main():
             # ALL VALIDATED - NOW INSERT MESSAGE OF CONFIRMATION
             success, message = db.add_new_attendee(attendee_id, name, dob, gender, company_id)
             print(message)
+            
+        elif choice == "4": # 4 - View Connected Attendees (FIXED - now checks Neo4j first, then SQLite, and shows connections)
+            attendee_search = input("Enter Attendee ID: ").strip()
+            
+            # NON-NUMERIC CHECK FIRST
+            if not attendee_search.isdigit():
+                print("*** ERROR *** Invalid attendee ID")
+                continue
+            
+            attendee_id = int(attendee_search)
+            result = db.view_connected_attendees(attendee_id)
+            print(f"\n{result}")
+            
+        elif choice == "5":
+            print("\nAdd Attendee Connection \n-----------------")
+            print("This feature is not implemented yet.")
         
         elif choice == "6":
             cursor = db.sqlite_conn.cursor()
