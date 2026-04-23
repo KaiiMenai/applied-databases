@@ -19,31 +19,44 @@ class ConferenceDB:
         self.driver.close()
         self.sqlite_conn.close()
 
-# Option 1 - Neo4j search (FIXED - use AttendeeID string search)
+# Option 1 - Search speakers by name and session (FIXED - now uses SQLite to search speakerName with LIKE)
     def search_speakers(self, search_string):
-        query = """
-        MATCH (speaker:Attendee)
-        WHERE toString(speaker.AttendeeID) CONTAINS $name
-        RETURN speaker.AttendeeID AS name
-        ORDER BY speaker.AttendeeID
-        """
-        with self.driver.session(database="attendeenetwork") as session:
-            result = session.run(query, name=search_string)
-            return [record["name"] for record in result]
-
-# Option 1 - SQLite search (FIXED - now searches speakerName with LIKE)
-    def search_speakers_sessions(self, search_string):
+        """Option 1: Speakers table - Name | Session Title | Room"""
+        if not search_string:
+            return "(No speakers found of that name.)"
+        
         cursor = self.sqlite_conn.cursor()
         cursor.execute("""
-            SELECT DISTINCT s.speakerName, s.sessionTitle, r.roomName
+            SELECT DISTINCT 
+                s.speakerName,
+                s.sessionTitle,
+                r.roomName
             FROM session s
-            JOIN room r ON s.roomID = r.roomID
+            LEFT JOIN room r ON s.roomID = r.roomID
             WHERE LOWER(s.speakerName) LIKE LOWER(?)
             ORDER BY s.speakerName, s.sessionTitle
         """, (f'%{search_string}%',))
+        
         results = cursor.fetchall()
         cursor.close()
-        return results
+        
+        if not results:
+            return "(No speakers found of that name.)"
+        
+        # TABLE FORMAT
+        output = f"Speakers matching '{search_string}':\n\n"
+        output += "Speaker Name      | Session Title             | Room\n"
+        output += "------------------|---------------------------|--------\n"
+        
+        for speaker, session_title, room in results:
+            speaker = speaker[:17] if len(speaker) > 17 else speaker.ljust(17)
+            session_title = session_title[:24] if len(session_title) > 24 else session_title.ljust(24)
+            room = room or "N/A"
+            
+            output += f"{speaker} | {session_title} | {room}\n"
+        
+        output += f"\nTotal: {len(results)} sessions"
+        return output
 
 # Option 2 - Neo4j by company (FIXED - no Company property yet)
     def search_speakers_by_company(self, company_id):
@@ -299,10 +312,11 @@ def main():
         print_menu()
         choice = input("Choice: ").strip()
         
-        if choice == "1": # 1 - View Speakers & Sessions (FIXED - now uses SQLite to search speakerName with LIKE)
+        if choice == "1": # 1 - View Speakers & Sessions (FIXED - modified for table output and SQLite search)
             print("\n View Speakers & Sessions \n-----------------")
             name_search = input("Enter speaker name letters: ").strip()
-            speakers = db.search_speakers_sessions(name_search)  # ← SQLite!
+            result = db.search_speakers(name_search)
+            print(f"\n{result}")
             
             if speakers:
                 print(f"\nFound {len(speakers)} sessions:")
