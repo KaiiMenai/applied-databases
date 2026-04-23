@@ -8,6 +8,7 @@ import os
 import sqlite3
 from neo4j import GraphDatabase
 
+# Database connection class
 class ConferenceDB:
     def __init__(self, neo4j_uri, neo4j_user, neo4j_password, sqlite_db='appdbproj.db'):
         self.driver = GraphDatabase.driver(neo4j_uri, auth=(neo4j_user, neo4j_password))
@@ -17,8 +18,8 @@ class ConferenceDB:
     def close(self):
         self.driver.close()
         self.sqlite_conn.close()
-    
-    # Option 1 - Neo4j search (FIXED - use AttendeeID string search)
+
+# Option 1 - Neo4j search (FIXED - use AttendeeID string search)
     def search_speakers(self, search_string):
         query = """
         MATCH (speaker:Attendee)
@@ -43,8 +44,8 @@ class ConferenceDB:
         results = cursor.fetchall()
         cursor.close()
         return results
-    
-    # Option 2 - Neo4j by company (FIXED - no Company property yet)
+
+# Option 2 - Neo4j by company (FIXED - no Company property yet)
     def search_speakers_by_company(self, company_id):
         cursor = self.sqlite_conn.cursor()
         cursor.execute("""
