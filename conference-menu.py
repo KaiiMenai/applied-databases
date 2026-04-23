@@ -142,6 +142,61 @@ class ConferenceDB:
         return output
 
 # Option 5 - Add attendee connection (FIXED - now just a placeholder message)
+    def add_attendee_connection(self, attendee1_id, attendee2_id):
+        """Option 5: Create CONNECTED_TO with ALL error conditions"""
+        
+        # ERROR 1: Attempt to connect an attendee to themselves
+        if attendee1_id == attendee2_id:
+            return False, "*** ERROR *** An attendee cannot be CONNECTED_TO him/herself."
+        
+        # ERROR 2: Check both exist in SQLite (NO Neo4j node creation)
+        cursor = self.sqlite_conn.cursor()
+        cursor.execute("SELECT attendeeName FROM attendee WHERE attendeeID = ?", (attendee1_id,))
+        attendee1 = cursor.fetchone()
+        cursor.execute("SELECT attendeeName FROM attendee WHERE attendeeID = ?", (attendee2_id,))
+        attendee2 = cursor.fetchone()
+        
+        if not attendee1:
+            cursor.close()
+            return False, f"*** ERROR *** Attendee ID {attendee1_id} doesn't exist (MySQL)"
+        if not attendee2:
+            cursor.close()
+            return False, f"*** ERROR *** Attendee ID {attendee2_id} doesn't exist (MySQL)"
+        cursor.close()
+        
+        # 3. Check Neo4j nodes exist
+        with self.driver.session(database="attendeenetwork") as session:
+            exists_query = """
+            MATCH (a1:Attendee {AttendeeID: $id1}), (a2:Attendee {AttendeeID: $id2})
+            RETURN a1, a2
+            """
+            exists_result = session.run(exists_query, id1=attendee1_id, id2=attendee2_id)
+            nodes = exists_result.single()
+            
+            if not nodes:
+                return False, "*** ERROR *** One or both attendee IDs do not exist."
+            
+            # 4. Check relationship ALREADY exists (either direction)
+            rel_query = """
+            MATCH (a1:Attendee {AttendeeID: $id1})-[r:CONNECTED_TO]-(a2:Attendee {AttendeeID: $id2})
+            RETURN count(r) AS existing
+            """
+            rel_result = session.run(rel_query, id1=attendee1_id, id2=attendee2_id)
+            existing_rel = rel_result.single()["existing"]
+            
+            if existing_rel > 0:
+                return False, f"*** ERROR *** Attendees {attendee1_id} and {attendee2_id} are already connected."
+            
+            # 5. CREATE relationship
+            create_query = """
+            MATCH (a1:Attendee {AttendeeID: $id1}), (a2:Attendee {AttendeeID: $id2})
+            CREATE (a1)-[:CONNECTED_TO]->(a2)
+            RETURN count(*) as created
+            """
+            create_result = session.run(create_query, id1=attendee1_id, id2=attendee2_id)
+            created = create_result.single()["created"]
+        
+        return True, f"Connection created! Attendee {attendee1_id} is now connected to  Attendee {attendee2_id}."
 
 # Option 6 - View rooms (FIXED - now shows all rooms with capacity, sorted by capacity)
 
@@ -273,7 +328,7 @@ def main():
             
             # NON-NUMERIC CHECK FIRST
             if not attendee_search.isdigit():
-                print("*** ERROR *** Invalid attendee ID")
+                print("*** ERROR *** Attendee ID must be numbers")
                 continue
             
             attendee_id = int(attendee_search)
@@ -282,9 +337,37 @@ def main():
             
         elif choice == "5":
             print("\nAdd Attendee Connection \n-----------------")
-            print("This feature is not implemented yet.")
+            
+            while True:
+                # Attendee 1 input + validation
+                id1_input = input("Attendee 1 ID: ").strip()
+                if not id1_input.isdigit():
+                    print("*** ERROR *** Attendee 1 ID must be numbers")
+                    continue
+                id1 = int(id1_input)
+                
+                # Attendee 2 input + validation  
+                id2_input = input("Attendee 2 ID: ").strip()
+                if not id2_input.isdigit():
+                    print("*** ERROR *** Attendee 2 ID must be numbers")
+                    continue
+                id2 = int(id2_input)
+                
+                # Try to create connection
+                success, message = db.add_attendee_connection(id1, id2)
+                print(message)
+                
+                if success:
+                    break  # Success = exit loop
+                # Error - re-prompt for new AttendeeIDs
+            
+            # Verify with Option 4
+            verify = input("\nVerify connection? (Y/N): ").strip().lower()
+            if verify == 'Y':
+                print(f"\n{db.view_connected_attendees(id1)}")
         
         elif choice == "6":
+            print("\nView Rooms \n-----------------")
             cursor = db.sqlite_conn.cursor()
             cursor.execute("SELECT roomName, capacity FROM room ORDER BY capacity DESC")
             rooms = cursor.fetchall()
