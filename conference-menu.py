@@ -65,7 +65,27 @@ class ConferenceDB:
         """, (company_id,))
         results = cursor.fetchall()
         cursor.close()
-        return results
+        
+        if not results:
+            return f"No attendees found for Company ID {company_id}."
+        
+        # TABLE FORMAT
+        output = f"Company ID {company_id} Attendees & Sessions:\n\n"
+        output += "Name              | DOB        | Session Title             | Speaker          | Room\n"
+        output += "------------------|------------|---------------------------|------------------|--------\n"
+        
+        for name, dob, session, speaker, room in results:
+            # Truncate long fields for table alignment
+            name = name[:17] if len(name) > 17 else name.ljust(17)
+            dob = dob[:11] if len(dob) > 11 else dob.ljust(11)
+            session = session[:24] if len(session) > 24 else session.ljust(24)
+            speaker = speaker[:15] if len(speaker) > 15 else speaker.ljust(15)
+            room = room or "N/A"
+            
+            output += f"{name} | {dob} | {session} | {speaker} | {room}\n"
+        
+        output += f"\nTotal: {len(results)} records."
+        return output
 
 # Option 3 - Add new attendee (FIXED - now with specific ID input and validation)
     def add_new_attendee(self, attendee_id, name, dob, gender, company_id):
