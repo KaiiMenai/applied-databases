@@ -45,8 +45,8 @@ class ConferenceDB:
         
         # TABLE FORMAT
         output = f"Speakers matching '{search_string}':\n\n"
-        output += "Speaker Name      | Session Title             | Room\n"
-        output += "------------------|---------------------------|--------\n"
+        output += "Speaker Name      | Session Title            | Room\n"
+        output += "------------------|--------------------------|--------\n"
         
         for speaker, session_title, room in results:
             speaker = speaker[:17] if len(speaker) > 17 else speaker.ljust(17)
@@ -299,7 +299,7 @@ def print_menu():
     print("5 - Add Attendee Connection")        # Placeholder for future implementation
     print("6 - View Rooms")                     # SQLite
     print("x - Exit application")
-    print("--------------------------------")
+    print("----------------------------------")
 
 def main():
     URI = "bolt://localhost:7687"
