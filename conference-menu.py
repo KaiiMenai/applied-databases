@@ -286,7 +286,7 @@ class ConferenceDB:
         for room_id, room_name, capacity in rooms:
             output += f"{room_id:7} | {room_name:16} | {capacity}\n"
         
-        output += f"\nTotal: {len(rooms)} rooms"
+        output += f"\nTotal: {len(rooms)} rooms."
         return output
 
 # Menu display function
@@ -298,7 +298,7 @@ def print_menu():
     print("4 - View Connected Attendees")       # Neo4j + SQLite: check Neo4j first, then SQLite, and show connections
     print("5 - Add Attendee Connection")        # Placeholder for future implementation
     print("6 - View Rooms")                     # SQLite
-    print("x - Exit application")
+    print("x - Exit application")               # Exit option
     print("----------------------------------")
 
 def main():
