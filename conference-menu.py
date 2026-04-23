@@ -143,17 +143,19 @@ class ConferenceDB:
 
 # Option 5 - Add attendee connection (FIXED - now just a placeholder message)
 
+# Option 6 - View rooms (FIXED - now shows all rooms with capacity, sorted by capacity)
+
 # Menu display function
 def print_menu():
-    print("\n=== Conference Attendee Search ===")
-    print("1 - View Speakers & Sessions")      # SQLite: speaker+session+room
-    print("2 - View Attendees by Company")   # Neo4j
-    print("3 - Add New Attendee")
-    print("4 - View Connected Attendees")
-    print("5 - Add Attendee Connection")
-    print("6 - View Rooms")                  # SQLite
+    print("\n--- Conference Attendee Search ---")
+    print("1 - View Speakers & Sessions")       # SQLite: speaker+session+room
+    print("2 - View Attendees by Company")      # Neo4j
+    print("3 - Add New Attendee")               # SQLite: with specific ID input and validation
+    print("4 - View Connected Attendees")       # Neo4j + SQLite: check Neo4j first, then SQLite, and show connections
+    print("5 - Add Attendee Connection")        # Placeholder for future implementation
+    print("6 - View Rooms")                     # SQLite
     print("x - Exit application")
-    print("==================================")
+    print("--------------------------------")
 
 def main():
     URI = "bolt://localhost:7687"
