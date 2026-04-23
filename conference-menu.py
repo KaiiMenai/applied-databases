@@ -49,11 +49,19 @@ class ConferenceDB:
     def search_speakers_by_company(self, company_id):
         cursor = self.sqlite_conn.cursor()
         cursor.execute("""
-            SELECT a.attendeeName, a.attendeeID, c.companyName 
+            SELECT DISTINCT 
+                a.attendeeName,
+                a.attendeeDOB,
+                s.sessionTitle,
+                s.speakerName,
+                r.roomName
             FROM attendee a
             JOIN company c ON a.attendeeCompanyID = c.companyID
+            LEFT JOIN registration reg ON a.attendeeID = reg.attendeeID
+            LEFT JOIN session s ON reg.sessionID = s.sessionID
+            LEFT JOIN room r ON s.roomID = r.roomID
             WHERE c.companyID = ?
-            ORDER BY a.attendeeName
+            ORDER BY a.attendeeName, s.sessionTitle
         """, (company_id,))
         results = cursor.fetchall()
         cursor.close()
