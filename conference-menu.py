@@ -246,7 +246,7 @@ def main():
     
     while True:
         print_menu()
-        choice = input("Please enter your choice: ").strip()
+        choice = input("Choice: ").strip()
         
         if choice == "1": # 1 - View Speakers & Sessions (FIXED - now uses SQLite to search speakerName with LIKE)
             print("\n View Speakers & Sessions \n-----------------")
