@@ -198,7 +198,31 @@ class ConferenceDB:
         
         return True, f"Connection created! Attendee {attendee1_id} is now connected to  Attendee {attendee2_id}."
 
-# Option 6 - View rooms (FIXED - now shows all rooms with capacity, sorted by capacity)
+# Option 6 - View rooms (FIXED - moved the room display to its own SQLite function)
+    def view_rooms(self):
+        """Option 6: Rooms table - Room ID | Room Name | Capacity"""
+        cursor = self.sqlite_conn.cursor()
+        cursor.execute("""
+            SELECT roomID, roomName, capacity 
+            FROM room 
+            ORDER BY capacity DESC
+        """)
+        rooms = cursor.fetchall()
+        cursor.close()
+        
+        if not rooms:
+            return "No rooms found."
+        
+        # TABLE FORMAT
+        output = "Rooms:\n"
+        output += "Room ID | Room Name         | Capacity\n"
+        output += "--------|-------------------|---------\n"
+        
+        for room_id, room_name, capacity in rooms:
+            output += f"{room_id:7} | {room_name:16} | {capacity}\n"
+        
+        output += f"\nTotal: {len(rooms)} rooms"
+        return output
 
 # Menu display function
 def print_menu():
@@ -254,7 +278,7 @@ def main():
             while True:
                 attendee_id = input("Attendee ID (e.g. 121): ").strip()
                 if not attendee_id.isdigit():
-                    print("*** ERROR *** Attendee ID must be a number!")
+                    print("*** ERROR *** Attendee ID must be a number.")
                     continue
         
                 attendee_id = int(attendee_id)
@@ -266,7 +290,7 @@ def main():
                 cursor.close()
         
                 if existing:
-                    print(f"*** ERROR *** Attendee ID {attendee_id} already exists! ({existing[0]})")
+                    print(f"*** ERROR *** Attendee ID {attendee_id} already exists. ({existing[0]})")
                     print("Please enter another ID.")
                     continue
                 print(f"Attendee ID {attendee_id} is available!")
@@ -296,29 +320,29 @@ def main():
                     print("*** ERROR *** Gender must be 'Male' or 'Female'")
                     continue
                 break  # Gender = DONE
-    
+                
             # 5. COMPANY ID VALIDATION LOOP
             while True:
                 company_id_input = input("Company ID (1-9): ").strip()
                 if not company_id_input.isdigit() or not (1 <= int(company_id_input) <= 9):
                     print("*** ERROR *** Company ID must be 1-9!")
                     continue
-        
+                
                 company_id = int(company_id_input)
-        
+
                 # Check company exists
                 cursor = db.sqlite_conn.cursor()
                 cursor.execute("SELECT companyName FROM company WHERE companyID = ?", (company_id,))
                 company = cursor.fetchone()
                 cursor.close()
-        
+
                 if not company:
                     print(f"*** ERROR *** Company ID {company_id} does not exist!")
                     continue
-        
+                
                 print(f"Company {company_id}: {company[0]}")
                 break  # Company = DONE
-    
+            
             # ALL VALIDATED - NOW INSERT MESSAGE OF CONFIRMATION
             success, message = db.add_new_attendee(attendee_id, name, dob, gender, company_id)
             print(message)
@@ -365,16 +389,11 @@ def main():
             verify = input("\nVerify connection? (Y/N): ").strip().lower()
             if verify == 'Y':
                 print(f"\n{db.view_connected_attendees(id1)}")
-        
+
         elif choice == "6":
             print("\nView Rooms \n-----------------")
-            cursor = db.sqlite_conn.cursor()
-            cursor.execute("SELECT roomName, capacity FROM room ORDER BY capacity DESC")
-            rooms = cursor.fetchall()
-            print("\nAll Rooms:")
-            for room, capacity in rooms:
-                print(f"- {room} (Capacity: {capacity})")
-            cursor.close()
+            result = db.view_rooms()
+            print(f"\n{result}")
             
         elif choice == "x":
             print("Goodbye!")
