@@ -1,5 +1,4 @@
-# applied-databases
-Applied Databases Project
+# Applied Databases Project
 
 author: Kyra Menai Hamilton
 
