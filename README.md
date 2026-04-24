@@ -19,6 +19,19 @@ Project files:
 - appdbproj.db - the database formed from the original sql and used for reference in the project.
 - conference-menu.py - python code that allows for exploration of the database and the relationships (12) and nodes (18).
 
-## 
+## Set Up - START HERE
+
+VM Setup (2 min):
+1. Unzip -> double-click run.bat
+2. Neo4j Desktop -> Import dump -> Start DB
+3. python conference_menu.py -> Full demo.
+
+# Basic Functionality
+
+# Innovation
+
+- Web UI using html - make it look pretty - it will be more user friendly imo - if use LLMs save prompt to make clear what I asked.
+- API - Like in web services and applications - use flask (REST API)
+- Matplotlib - room capacity visualisation
 
 # END
