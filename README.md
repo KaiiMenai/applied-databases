@@ -34,4 +34,21 @@ VM Setup (2 min):
 - API - Like in web services and applications - use flask (REST API)
 - Matplotlib - room capacity visualisation
 
+
+NOTE 
+ammend dob restrictions -0 attendee can't be 9?
+
+when connections made - have way to leave to mm
+
+fix error when looking at attendees by company: 
+- Enter Company ID: 3
+Traceback (most recent call last):
+  File "d:\Data_Analytics\Modules\applied-databases\conference-menu.py", line 468, in <module>
+    main()
+  File "d:\Data_Analytics\Modules\applied-databases\conference-menu.py", line 326, in main
+    attendees = db.search_attendees_by_company(company_search)
+  File "d:\Data_Analytics\Modules\applied-databases\conference-menu.py", line 119, in search_attendees_by_company
+    session = session[:24] if len(session) > 24 else session.ljust(24)
+TypeError: object of type 'NoneType' has no len()
+
 # END
