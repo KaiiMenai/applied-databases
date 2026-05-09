@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Conference Manager</title>
+    <style>
+        body { font-family: 'DM Sans', sans-serif; background: linear-gradient(135deg, #0a1628 0%, #1a365d 100%); color: white; margin: 0; }
+        .sidebar { position: fixed; left: 0; top: 0; width: 250px; height: 100vh; background: #0f172a; padding: 20px; }
+        .content { margin-left: 270px; padding: 40px; }
+        button { background: #f5a623; border: none; padding: 10px 20px; border-radius: 8px; color: #0a1628; font-weight: bold; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; background: white; color: #0a1628; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        th { background: #f1f5f9; font-weight: bold; }
+        input { padding: 10px; border-radius: 6px; border: 1px solid #475569; width: 200px; }
+        .section { display: none; margin: 20px 0; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 12px; }
+        h2 { color: #f5a623; font-family: 'Playfair Display', serif; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="sidebar">
+        <h1>Conference DB</h1>
+        <button onclick="showSection('speakers')">1. Search Speakers</button><br><br>
+        <button onclick="showSection('attendees')">2. Attendees by Company</button><br><br>
+        <!-- Add buttons for other options -->
+    </div>
+    <div class="content">
+        <div id="speakers" class="section">
+            <h2>Search Speakers</h2>
+            <input id="speakerInput" placeholder="e.g., dr"><button onclick="fetchSpeakers()">Search</button>
+            <div id="speakersTable"></div>
+        </div>
+        <!-- Add sections for others -->
+    </div>
+    <script>
+        function showSection(id) { document.querySelectorAll('.section').forEach(s => s.style.display = 'none'); document.getElementById(id).style.display = 'block'; }
+        async function fetchSpeakers() {
+            const name = document.getElementById('speakerInput').value;
+            const res = await fetch(`/api/speakers?name=${name}`);
+            const data = await res.json();
+            let html = '<table><tr>' + data.headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
+            data.rows.forEach(row => { html += '<tr>' + row.map(c => `<td>${c}</td>`).join('') + '</tr>'; });
+            document.getElementById('speakersTable').innerHTML = html + '</table>';
+        }
+        // Add fetch funcs for other endpoints
+    </script>
+</body>
+</html>
