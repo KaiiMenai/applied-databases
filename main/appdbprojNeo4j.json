@@ -1,0 +1,38 @@
+// # The version of this to import into the venv has been saved as attendeeNetork.dump, the original .json file is here for reference. 
+// # The .dump file was created using the neo4j-admin dump command, and can be imported using the neo4j-admin load command. The .json file is not used in the application.
+// ConferenceConnect Neo4j database
+// Create a database called attendeeNetwork and run the following statements in that database.
+MATCH (n) DETACH DELETE n;
+
+CREATE
+(:Attendee {AttendeeID: 101}),
+(:Attendee {AttendeeID: 102}),
+(:Attendee {AttendeeID: 103}),
+(:Attendee {AttendeeID: 104}),
+(:Attendee {AttendeeID: 105}),
+(:Attendee {AttendeeID: 106}),
+(:Attendee {AttendeeID: 107}),
+(:Attendee {AttendeeID: 108}),
+(:Attendee {AttendeeID: 109}),
+(:Attendee {AttendeeID: 110}),
+(:Attendee {AttendeeID: 111}),
+(:Attendee {AttendeeID: 113}),
+(:Attendee {AttendeeID: 114}),
+(:Attendee {AttendeeID: 115}),
+(:Attendee {AttendeeID: 116}),
+(:Attendee {AttendeeID: 117}),
+(:Attendee {AttendeeID: 118}),
+(:Attendee {AttendeeID: 120});
+
+MATCH (a:Attendee {AttendeeID: 101}), (b:Attendee {AttendeeID: 109}) CREATE (a)-[:CONNECTED_TO]->(b);
+MATCH (a:Attendee {AttendeeID: 101}), (b:Attendee {AttendeeID: 107}) CREATE (a)-[:CONNECTED_TO]->(b);
+MATCH (a:Attendee {AttendeeID: 102}), (b:Attendee {AttendeeID: 110}) CREATE (a)-[:CONNECTED_TO]->(b);
+MATCH (a:Attendee {AttendeeID: 103}), (b:Attendee {AttendeeID: 111}) CREATE (a)-[:CONNECTED_TO]->(b);
+MATCH (a:Attendee {AttendeeID: 104}), (b:Attendee {AttendeeID: 120}) CREATE (a)-[:CONNECTED_TO]->(b);
+MATCH (a:Attendee {AttendeeID: 105}), (b:Attendee {AttendeeID: 113}) CREATE (a)-[:CONNECTED_TO]->(b);
+MATCH (a:Attendee {AttendeeID: 106}), (b:Attendee {AttendeeID: 114}) CREATE (a)-[:CONNECTED_TO]->(b);
+MATCH (a:Attendee {AttendeeID: 107}), (b:Attendee {AttendeeID: 115}) CREATE (a)-[:CONNECTED_TO]->(b);
+MATCH (a:Attendee {AttendeeID: 108}), (b:Attendee {AttendeeID: 116}) CREATE (a)-[:CONNECTED_TO]->(b);
+MATCH (a:Attendee {AttendeeID: 111}), (b:Attendee {AttendeeID: 101}) CREATE (a)-[:CONNECTED_TO]->(b);
+MATCH (a:Attendee {AttendeeID: 106}), (b:Attendee {AttendeeID: 103}) CREATE (a)-[:CONNECTED_TO]->(b);
+MATCH (a:Attendee {AttendeeID: 120}), (b:Attendee {AttendeeID: 103}) CREATE (a)-[:CONNECTED_TO]->(b);
