@@ -66,7 +66,7 @@ class ConferenceDB:
             return None, None, f"Company with ID {company_id} doesn't exist"
 
         cursor.execute("""
-            SELECT a.attendeeName, a.attendeeDOB, s.sessionTitle, s.speakerName, r.roomName
+            SELECT a.attendeeName, a.attendeeDOB, s.sessionTitle, s.speakerName, r.roomName, s.sessionDate
             FROM attendee a
             LEFT JOIN registration reg ON a.attendeeID = reg.attendeeID
             LEFT JOIN session s ON reg.sessionID = s.sessionID
@@ -281,7 +281,7 @@ def main():
         mysql_database="appdbproj",
         neo4j_uri="bolt://localhost:7687",
         neo4j_user="neo4j",
-        neo4j_password="root"   # PLEASE CHANGE THIS TO YOUR NEO4J PASSWORD
+        neo4j_password="yournewpassword"   # PLEASE CHANGE THIS TO YOUR NEO4J PASSWORD
     )
     try:
         while True:
@@ -334,7 +334,7 @@ def main():
                         continue
 
                     print(f"{company_name}  Attendees")
-                    print_table(["Name", "DOB", "Session Title", "Speaker", "Room"], rows)
+                    print_table(["Name", "DOB", "Session Title", "Speaker", "Room", "Session Date"], rows)
                     break
 
             # ── Option 3: Add New Attendee ────────────────────────────────────

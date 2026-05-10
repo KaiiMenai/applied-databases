@@ -30,11 +30,11 @@ CORS(app)   # Allow the web_ui.html (file://) to call localhost:5000
 db = ConferenceDB(
     mysql_host="localhost",
     mysql_user="root",
-    mysql_password="root",   # CHANGE THIS
+    mysql_password="yourpassword",   # CHANGE THIS
     mysql_database="appdbproj",
     neo4j_uri="bolt://localhost:7687",
     neo4j_user="neo4j",
-    neo4j_password="root"    # CHANGE THIS
+    neo4j_password="yournewpassword"    # CHANGE THIS
 )
 
 
@@ -74,7 +74,8 @@ def get_attendees(company_id):
             "dob":     str(r[1]),   # datetime.date → "YYYY-MM-DD"
             "session": r[2],
             "speaker": r[3],
-            "room":    r[4]
+            "room":    r[4],
+            "session_date": str(r[5])  # datetime.date → "YYYY-MM-DD"
         }
         for r in rows
     ]
@@ -231,3 +232,5 @@ def get_rooms_chart():
 if __name__ == "__main__":
     print("Conference Management API running on http://localhost:5000")
     app.run(debug=True, port=5000)
+    
+    # END
