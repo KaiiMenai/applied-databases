@@ -1,0 +1,31 @@
+Innovation Document
+
+Applied Databases Project
+Submission Date: 13 May 2026
+author: Kyra Menai Hamilton
+
+1. Intro
+
+2. Innovation 1: Web UI Dashboard
+
+(inspired by web services and applications module: https://github.com/KaiiMenai/web-services-and-applications/blob/main/big-project/tasksviewer.html)
+
+3. Innovation 2: Flask Rest API
+
+(inspired by web services and applications module: https://github.com/KaiiMenai/web-services-and-applications/blob/main/big-project/server.py)
+
+4. Innovation 3: Room Capacity Visualisation
+
+5. Complete Package Installation
+
+```bash
+pip install flask flask-cors matplotlib mysql-connector-python neo4j
+```
+
+6. Demo Screenshots
+
+1-web UI
+2-speakers table
+3-room capacity chart
+4-connection graph
+
