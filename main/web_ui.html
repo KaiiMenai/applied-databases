@@ -1,48 +1,969 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Conference Manager</title>
-    <style>
-        body { font-family: 'DM Sans', sans-serif; background: linear-gradient(135deg, #0a1628 0%, #1a365d 100%); color: white; margin: 0; }
-        .sidebar { position: fixed; left: 0; top: 0; width: 250px; height: 100vh; background: #0f172a; padding: 20px; }
-        .content { margin-left: 270px; padding: 40px; }
-        button { background: #f5a623; border: none; padding: 10px 20px; border-radius: 8px; color: #0a1628; font-weight: bold; cursor: pointer; }
-        table { width: 100%; border-collapse: collapse; background: white; color: #0a1628; border-radius: 8px; overflow: hidden; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
-        th { background: #f1f5f9; font-weight: bold; }
-        input { padding: 10px; border-radius: 6px; border: 1px solid #475569; width: 200px; }
-        .section { display: none; margin: 20px 0; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 12px; }
-        h2 { color: #f5a623; font-family: 'Playfair Display', serif; }
-    </style>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Conference Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Lora:wght@600;700&display=swap" rel="stylesheet" />
+<style>
+/* ── Reset & Variables ──────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --sidebar-bg:   #1c1c1e;
+  --sidebar-w:    240px;
+  --accent:       #c8f135;
+  --accent-dim:   #a3c82a;
+  --page-bg:      #f2f2f0;
+  --card-bg:      #ffffff;
+  --text-primary: #1c1c1e;
+  --text-muted:   #6b7280;
+  --border:       #e5e7eb;
+  --error-bg:     #fff0f0;
+  --error-text:   #dc2626;
+  --error-border: #fca5a5;
+  --success-bg:   #f0fdf4;
+  --success-text: #16a34a;
+  --success-border:#86efac;
+  --radius:       12px;
+  --shadow:       0 2px 12px rgba(0,0,0,0.07);
+  --shadow-lg:    0 8px 32px rgba(0,0,0,0.12);
+  --font:         'Outfit', sans-serif;
+  --font-serif:   'Lora', serif;
+  --transition:   0.2s ease;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--page-bg);
+  color: var(--text-primary);
+  display: flex;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Sidebar ────────────────────────────────────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w);
+  min-height: 100vh;
+  background: var(--sidebar-bg);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0;
+  z-index: 100;
+}
+
+.sidebar-brand {
+  padding: 28px 24px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+.sidebar-brand .brand-tag {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.sidebar-brand h1 {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  color: #ffffff;
+  line-height: 1.3;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+  color: rgba(255,255,255,0.55);
+  font-size: 13.5px;
+  font-weight: 500;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+}
+
+.nav-item:hover {
+  background: rgba(255,255,255,0.07);
+  color: rgba(255,255,255,0.85);
+}
+
+.nav-item.active {
+  background: var(--accent);
+  color: var(--sidebar-bg);
+  font-weight: 700;
+}
+
+.nav-item .nav-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(255,255,255,0.1);
+  flex-shrink: 0;
+  transition: background var(--transition);
+}
+
+.nav-item.active .nav-num {
+  background: rgba(28,28,30,0.2);
+}
+
+.sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  font-size: 11px;
+  color: rgba(255,255,255,0.25);
+  line-height: 1.6;
+}
+
+/* ── Main content ────────────────────────────────────────────────────────── */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  padding: 40px 44px;
+  max-width: calc(100vw - var(--sidebar-w));
+}
+
+/* ── Page header ─────────────────────────────────────────────────────────── */
+.page-header {
+  margin-bottom: 32px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.page-header-left .section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-dim);
+  margin-bottom: 4px;
+}
+
+.page-header-left h2 {
+  font-family: var(--font-serif);
+  font-size: 30px;
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+/* ── Card ────────────────────────────────────────────────────────────────── */
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  padding: 28px 32px;
+  margin-bottom: 24px;
+}
+
+.card-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+/* ── Form elements ───────────────────────────────────────────────────────── */
+.form-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 160px;
+}
+
+.form-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+input, select {
+  font-family: var(--font);
+  font-size: 14px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: #fafafa;
+  color: var(--text-primary);
+  transition: border-color var(--transition), box-shadow var(--transition);
+  outline: none;
+  width: 100%;
+}
+
+input:focus, select:focus {
+  border-color: var(--accent-dim);
+  box-shadow: 0 0 0 3px rgba(200,241,53,0.15);
+  background: #fff;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+.btn {
+  font-family: var(--font);
+  font-size: 13.5px;
+  font-weight: 700;
+  padding: 10px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+  transition: all var(--transition);
+  white-space: nowrap;
+  letter-spacing: 0.03em;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--sidebar-bg);
+}
+.btn-primary:hover {
+  background: var(--accent-dim);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(200,241,53,0.3);
+}
+.btn-primary:active { transform: translateY(0); }
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1.5px solid var(--border);
+}
+.btn-secondary:hover {
+  border-color: #9ca3af;
+  color: var(--text-primary);
+}
+
+/* ── Alert messages ──────────────────────────────────────────────────────── */
+.alert {
+  padding: 13px 18px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 500;
+  display: none;
+  margin-top: 18px;
+  border: 1.5px solid;
+}
+.alert.show { display: block; animation: fadeIn 0.2s ease; }
+.alert-error   { background: var(--error-bg);   color: var(--error-text);   border-color: var(--error-border); }
+.alert-success { background: var(--success-bg); color: var(--success-text); border-color: var(--success-border); }
+
+/* ── Results table ───────────────────────────────────────────────────────── */
+.results-wrapper {
+  margin-top: 24px;
+  display: none;
+}
+.results-wrapper.show { display: block; animation: fadeIn 0.25s ease; }
+
+.results-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.table-scroll { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+thead tr {
+  background: var(--sidebar-bg);
+  color: rgba(255,255,255,0.75);
+}
+
+thead th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+thead th:first-child { border-radius: 10px 0 0 0; }
+thead th:last-child  { border-radius: 0 10px 0 0; }
+
+tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background var(--transition);
+}
+
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: #f9fafb; }
+
+tbody td {
+  padding: 12px 16px;
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+
+/* ── Pill badge ──────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+.badge-room {
+  background: rgba(200,241,53,0.18);
+  color: #5a7a00;
+}
+
+/* ── Connection graph card ───────────────────────────────────────────────── */
+.connection-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+.connection-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #fafafa;
+  animation: fadeIn 0.2s ease;
+}
+.connection-dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--sidebar-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.connection-info .c-name { font-weight: 600; font-size: 14px; }
+.connection-info .c-id   { font-size: 12px; color: var(--text-muted); }
+
+/* ── Room chart ──────────────────────────────────────────────────────────── */
+.chart-wrapper {
+  margin-top: 24px;
+  text-align: center;
+  display: none;
+}
+.chart-wrapper.show { display: block; animation: fadeIn 0.3s ease; }
+.chart-wrapper img {
+  max-width: 100%;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ── Loading spinner ─────────────────────────────────────────────────────── */
+.spinner {
+  display: none;
+  width: 20px; height: 20px;
+  border: 2.5px solid var(--border);
+  border-top-color: var(--accent-dim);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin: 0 auto;
+}
+.spinner.show { display: inline-block; }
+
+/* ── Section panels ──────────────────────────────────────────────────────── */
+.section { display: none; }
+.section.active { display: block; animation: slideIn 0.22s ease; }
+
+/* ── Animations ──────────────────────────────────────────────────────────── */
+@keyframes fadeIn  { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes slideIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: none; } }
+@keyframes spin    { to { transform: rotate(360deg); } }
+
+/* ── No results empty state ──────────────────────────────────────────────── */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+.empty-icon { font-size: 36px; margin-bottom: 12px; }
+</style>
 </head>
 <body>
-    <div class="sidebar">
-        <h1>Conference DB</h1>
-        <button onclick="showSection('speakers')">1. Search Speakers</button><br><br>
-        <button onclick="showSection('attendees')">2. Attendees by Company</button><br><br>
-        <!-- Add buttons for other options -->
+
+<!-- ── Sidebar ──────────────────────────────────────────────────────────────── -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-tag">Applied Databases</div>
+    <h1>Conference Management</h1>
+  </div>
+
+  <nav class="sidebar-nav">
+    <button class="nav-item active" onclick="showSection('speakers')">
+      <span class="nav-num">1</span> View Speakers
+    </button>
+    <button class="nav-item" onclick="showSection('attendees')">
+      <span class="nav-num">2</span> Attendees by Company
+    </button>
+    <button class="nav-item" onclick="showSection('addAttendee')">
+      <span class="nav-num">3</span> Add New Attendee
+    </button>
+    <button class="nav-item" onclick="showSection('connections')">
+      <span class="nav-num">4</span> View Connections
+    </button>
+    <button class="nav-item" onclick="showSection('addConnection')">
+      <span class="nav-num">5</span> Add Connection
+    </button>
+    <button class="nav-item" onclick="showSection('rooms')">
+      <span class="nav-num">6</span> View Rooms
+    </button>
+  </nav>
+
+  <div class="sidebar-footer">
+    API: localhost:5000<br/>
+    Kyra Menai Hamilton
+  </div>
+</aside>
+
+<!-- ── Main ─────────────────────────────────────────────────────────────────── -->
+<main class="main">
+
+  <!-- ══ 1. Speakers & Sessions ══════════════════════════════════════════════ -->
+  <section class="section active" id="sec-speakers">
+    <div class="page-header">
+      <div class="page-header-left">
+        <div class="section-label">Option 1</div>
+        <h2>Speakers &amp; Sessions</h2>
+      </div>
     </div>
-    <div class="content">
-        <div id="speakers" class="section">
-            <h2>Search Speakers</h2>
-            <input id="speakerInput" placeholder="e.g., dr"><button onclick="fetchSpeakers()">Search</button>
-            <div id="speakersTable"></div>
+
+    <div class="card">
+      <div class="card-title">Search by Speaker Name</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="speakerInput">Speaker Name (or partial)</label>
+          <input id="speakerInput" type="text" placeholder="e.g. dr" />
         </div>
-        <!-- Add sections for others -->
+        <button class="btn btn-primary" onclick="searchSpeakers()">Search</button>
+      </div>
+      <div class="alert alert-error"   id="speakers-err"></div>
+      <div class="alert alert-success" id="speakers-ok"></div>
     </div>
-    <script>
-        function showSection(id) { document.querySelectorAll('.section').forEach(s => s.style.display = 'none'); document.getElementById(id).style.display = 'block'; }
-        async function fetchSpeakers() {
-            const name = document.getElementById('speakerInput').value;
-            const res = await fetch(`/api/speakers?name=${name}`);
-            const data = await res.json();
-            let html = '<table><tr>' + data.headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
-            data.rows.forEach(row => { html += '<tr>' + row.map(c => `<td>${c}</td>`).join('') + '</tr>'; });
-            document.getElementById('speakersTable').innerHTML = html + '</table>';
-        }
-        // Add fetch funcs for other endpoints
-    </script>
+
+    <div class="results-wrapper" id="speakers-results">
+      <div class="results-meta" id="speakers-meta"></div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr>
+            <th>Speaker Name</th>
+            <th>Session Title</th>
+            <th>Room</th>
+          </tr></thead>
+          <tbody id="speakers-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 2. Attendees by Company ═════════════════════════════════════════════ -->
+  <section class="section" id="sec-attendees">
+    <div class="page-header">
+      <div class="page-header-left">
+        <div class="section-label">Option 2</div>
+        <h2>Attendees by Company</h2>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Enter Company ID</div>
+      <div class="form-row">
+        <div class="form-group" style="max-width:200px">
+          <label for="companyInput">Company ID</label>
+          <input id="companyInput" type="number" min="1" placeholder="e.g. 2" />
+        </div>
+        <button class="btn btn-primary" onclick="searchAttendees()">Search</button>
+      </div>
+      <div class="alert alert-error"   id="attendees-err"></div>
+    </div>
+
+    <div class="results-wrapper" id="attendees-results">
+      <div class="results-meta" id="attendees-meta"></div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr>
+            <th>Name</th><th>Date of Birth</th>
+            <th>Session Title</th><th>Speaker</th><th>Room</th>
+          </tr></thead>
+          <tbody id="attendees-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 3. Add New Attendee ═════════════════════════════════════════════════ -->
+  <section class="section" id="sec-addAttendee">
+    <div class="page-header">
+      <div class="page-header-left">
+        <div class="section-label">Option 3</div>
+        <h2>Add New Attendee</h2>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Attendee Details</div>
+      <div class="form-row" style="margin-bottom:16px">
+        <div class="form-group">
+          <label for="newId">Attendee ID</label>
+          <input id="newId" type="text" placeholder="e.g. 122" />
+        </div>
+        <div class="form-group">
+          <label for="newName">Full Name</label>
+          <input id="newName" type="text" placeholder="e.g. Mary McGovern" />
+        </div>
+      </div>
+      <div class="form-row" style="margin-bottom:16px">
+        <div class="form-group">
+          <label for="newDob">Date of Birth</label>
+          <input id="newDob" type="text" placeholder="YYYY-MM-DD" />
+        </div>
+        <div class="form-group">
+          <label for="newGender">Gender</label>
+          <select id="newGender">
+            <option value="">— select —</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="newCompany">Company ID</label>
+          <input id="newCompany" type="text" placeholder="e.g. 2" />
+        </div>
+      </div>
+      <div class="form-row">
+        <button class="btn btn-primary" onclick="addAttendee()">Add Attendee</button>
+        <button class="btn btn-secondary" onclick="clearAddForm()">Clear</button>
+      </div>
+      <div class="alert alert-error"   id="add-err"></div>
+      <div class="alert alert-success" id="add-ok"></div>
+    </div>
+  </section>
+
+  <!-- ══ 4. View Connected Attendees ════════════════════════════════════════ -->
+  <section class="section" id="sec-connections">
+    <div class="page-header">
+      <div class="page-header-left">
+        <div class="section-label">Option 4</div>
+        <h2>View Connections</h2>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Enter Attendee ID</div>
+      <div class="form-row">
+        <div class="form-group" style="max-width:200px">
+          <label for="connInput">Attendee ID</label>
+          <input id="connInput" type="number" min="1" placeholder="e.g. 101" />
+        </div>
+        <button class="btn btn-primary" onclick="viewConnections()">View Connections</button>
+      </div>
+      <div class="alert alert-error" id="conn-err"></div>
+    </div>
+
+    <div class="results-wrapper" id="conn-results">
+      <div class="results-meta" id="conn-meta"></div>
+      <div class="connection-list" id="conn-list"></div>
+    </div>
+  </section>
+
+  <!-- ══ 5. Add Attendee Connection ════════════════════════════════════════ -->
+  <section class="section" id="sec-addConnection">
+    <div class="page-header">
+      <div class="page-header-left">
+        <div class="section-label">Option 5</div>
+        <h2>Add Connection</h2>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Enter Two Attendee IDs</div>
+      <div class="form-row">
+        <div class="form-group" style="max-width:200px">
+          <label for="conn1">Attendee 1 ID</label>
+          <input id="conn1" type="number" min="1" placeholder="e.g. 117" />
+        </div>
+        <div class="form-group" style="max-width:200px">
+          <label for="conn2">Attendee 2 ID</label>
+          <input id="conn2" type="number" min="1" placeholder="e.g. 118" />
+        </div>
+        <button class="btn btn-primary" onclick="addConnection()">Connect</button>
+      </div>
+      <div class="alert alert-error"   id="addconn-err"></div>
+      <div class="alert alert-success" id="addconn-ok"></div>
+    </div>
+  </section>
+
+  <!-- ══ 6. View Rooms ══════════════════════════════════════════════════════ -->
+  <section class="section" id="sec-rooms">
+    <div class="page-header">
+      <div class="page-header-left">
+        <div class="section-label">Option 6</div>
+        <h2>View Rooms</h2>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">All Conference Rooms</div>
+      <div class="form-row">
+        <button class="btn btn-primary" onclick="loadRooms()">Load Rooms</button>
+        <button class="btn btn-secondary" onclick="loadChart()">Show Capacity Chart</button>
+      </div>
+      <div class="alert alert-error" id="rooms-err"></div>
+    </div>
+
+    <div class="results-wrapper" id="rooms-results">
+      <div class="results-meta" id="rooms-meta"></div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr>
+            <th>Room ID</th><th>Room Name</th><th>Capacity</th>
+          </tr></thead>
+          <tbody id="rooms-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="chart-wrapper" id="chart-wrapper">
+      <div class="results-meta" style="text-align:left; margin-bottom:14px">
+        Room Capacity Chart
+      </div>
+      <div class="spinner" id="chart-spinner"></div>
+      <img id="chart-img" src="" alt="Room Capacity Chart" style="display:none" />
+    </div>
+  </section>
+
+</main>
+
+<script>
+const API = "http://localhost:5000";
+
+// ── Navigation ───────────────────────────────────────────────────────────────
+function showSection(name) {
+  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+  document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+  document.getElementById("sec-" + name).classList.add("active");
+  event.currentTarget.classList.add("active");
+}
+
+// ── Alert helpers ─────────────────────────────────────────────────────────────
+function showError(id, msg)   { const el = document.getElementById(id); el.textContent = msg; el.className = "alert alert-error show"; }
+function showSuccess(id, msg) { const el = document.getElementById(id); el.textContent = msg; el.className = "alert alert-success show"; }
+function hideAlert(id)        { document.getElementById(id).className = "alert"; }
+
+function showResults(wrapperId)  { document.getElementById(wrapperId).classList.add("show"); }
+function hideResults(wrapperId)  { document.getElementById(wrapperId).classList.remove("show"); }
+
+// ── 1. Search Speakers ───────────────────────────────────────────────────────
+async function searchSpeakers() {
+  const q = document.getElementById("speakerInput").value.trim();
+  hideAlert("speakers-err");
+  hideAlert("speakers-ok");
+  hideResults("speakers-results");
+
+  try {
+    const res  = await fetch(`${API}/api/speakers?name=${encodeURIComponent(q)}`);
+    const data = await res.json();
+
+    if (!res.ok) {
+      showError("speakers-err", data.error || "No speakers found.");
+      return;
+    }
+
+    document.getElementById("speakers-meta").textContent =
+      `${data.length} result${data.length !== 1 ? "s" : ""} for "${q}"`;
+
+    const tbody = document.getElementById("speakers-tbody");
+    tbody.innerHTML = data.map(r => `
+      <tr>
+        <td><strong>${esc(r.speaker)}</strong></td>
+        <td>${esc(r.session)}</td>
+        <td><span class="badge badge-room">${esc(r.room)}</span></td>
+      </tr>`).join("");
+
+    showResults("speakers-results");
+  } catch (e) {
+    showError("speakers-err", "Cannot reach API — is api.py running on port 5000?");
+  }
+}
+
+// ── 2. Attendees by Company ──────────────────────────────────────────────────
+async function searchAttendees() {
+  const id = document.getElementById("companyInput").value.trim();
+  hideAlert("attendees-err");
+  hideResults("attendees-results");
+
+  if (!id || isNaN(id) || parseInt(id) < 1) {
+    showError("attendees-err", "Please enter a valid Company ID (number greater than 0).");
+    return;
+  }
+
+  try {
+    const res  = await fetch(`${API}/api/attendees/${parseInt(id)}`);
+    const data = await res.json();
+
+    if (!res.ok) {
+      showError("attendees-err", data.error);
+      return;
+    }
+
+    document.getElementById("attendees-meta").textContent =
+      `${data.company} — ${data.attendees.length} attendee${data.attendees.length !== 1 ? "s" : ""}`;
+
+    const tbody = document.getElementById("attendees-tbody");
+    tbody.innerHTML = data.attendees.map(r => `
+      <tr>
+        <td><strong>${esc(r.name)}</strong></td>
+        <td>${esc(r.dob)}</td>
+        <td>${esc(r.session)}</td>
+        <td>${esc(r.speaker)}</td>
+        <td><span class="badge badge-room">${esc(r.room)}</span></td>
+      </tr>`).join("");
+
+    showResults("attendees-results");
+  } catch (e) {
+    showError("attendees-err", "Cannot reach API — is api.py running on port 5000?");
+  }
+}
+
+// ── 3. Add New Attendee ──────────────────────────────────────────────────────
+async function addAttendee() {
+  hideAlert("add-err");
+  hideAlert("add-ok");
+
+  const payload = {
+    attendee_id: document.getElementById("newId").value.trim(),
+    name:        document.getElementById("newName").value.trim(),
+    dob:         document.getElementById("newDob").value.trim(),
+    gender:      document.getElementById("newGender").value,
+    company_id:  document.getElementById("newCompany").value.trim()
+  };
+
+  try {
+    const res  = await fetch(`${API}/api/attendee`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      showError("add-err", data.error);
+    } else {
+      showSuccess("add-ok", data.message);
+    }
+  } catch (e) {
+    showError("add-err", "Cannot reach API — is api.py running on port 5000?");
+  }
+}
+
+function clearAddForm() {
+  ["newId","newName","newDob","newCompany"].forEach(id => document.getElementById(id).value = "");
+  document.getElementById("newGender").value = "";
+  hideAlert("add-err");
+  hideAlert("add-ok");
+}
+
+// ── 4. View Connections ──────────────────────────────────────────────────────
+async function viewConnections() {
+  const id = document.getElementById("connInput").value.trim();
+  hideAlert("conn-err");
+  hideResults("conn-results");
+
+  if (!id || isNaN(id) || parseInt(id) < 1) {
+    showError("conn-err", "*** ERROR *** Invalid attendee ID.");
+    return;
+  }
+
+  try {
+    const res  = await fetch(`${API}/api/connections/${parseInt(id)}`);
+    const data = await res.json();
+
+    if (!res.ok) {
+      showError("conn-err", data.error);
+      return;
+    }
+
+    const list = document.getElementById("conn-list");
+
+    if (data.connections.length === 0) {
+      document.getElementById("conn-meta").textContent =
+        `Attendee: ${data.name}`;
+      list.innerHTML = `<div class="empty-state">
+        <div class="empty-icon">🔗</div>
+        No connections found for ${esc(data.name)}.
+      </div>`;
+    } else {
+      document.getElementById("conn-meta").textContent =
+        `Attendee: ${data.name} — ${data.connections.length} connection${data.connections.length !== 1 ? "s" : ""}`;
+      list.innerHTML = data.connections.map(c => `
+        <div class="connection-item">
+          <div class="connection-dot">${c.id}</div>
+          <div class="connection-info">
+            <div class="c-name">${esc(c.name)}</div>
+            <div class="c-id">ID: ${c.id}</div>
+          </div>
+        </div>`).join("");
+    }
+
+    showResults("conn-results");
+  } catch (e) {
+    showError("conn-err", "Cannot reach API — is api.py running on port 5000?");
+  }
+}
+
+// ── 5. Add Connection ────────────────────────────────────────────────────────
+async function addConnection() {
+  hideAlert("addconn-err");
+  hideAlert("addconn-ok");
+
+  const id1 = document.getElementById("conn1").value.trim();
+  const id2 = document.getElementById("conn2").value.trim();
+
+  if (!id1 || !id2 || isNaN(id1) || isNaN(id2)) {
+    showError("addconn-err", "*** ERROR *** Attendee IDs must be numbers.");
+    return;
+  }
+
+  try {
+    const res  = await fetch(`${API}/api/connections`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ attendee1_id: parseInt(id1), attendee2_id: parseInt(id2) })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      showError("addconn-err", data.error);
+    } else {
+      showSuccess("addconn-ok", data.message);
+      document.getElementById("conn1").value = "";
+      document.getElementById("conn2").value = "";
+    }
+  } catch (e) {
+    showError("addconn-err", "Cannot reach API — is api.py running on port 5000?");
+  }
+}
+
+// ── 6. View Rooms ────────────────────────────────────────────────────────────
+async function loadRooms() {
+  hideAlert("rooms-err");
+  hideResults("rooms-results");
+
+  try {
+    const res  = await fetch(`${API}/api/rooms`);
+    const data = await res.json();
+
+    if (!res.ok) {
+      showError("rooms-err", data.error);
+      return;
+    }
+
+    document.getElementById("rooms-meta").textContent =
+      `${data.length} room${data.length !== 1 ? "s" : ""} — ordered by capacity`;
+
+    const tbody = document.getElementById("rooms-tbody");
+    tbody.innerHTML = data.map(r => `
+      <tr>
+        <td>${r.id}</td>
+        <td><strong>${esc(r.name)}</strong></td>
+        <td><span class="badge badge-room">${r.capacity} seats</span></td>
+      </tr>`).join("");
+
+    showResults("rooms-results");
+  } catch (e) {
+    showError("rooms-err", "Cannot reach API — is api.py running on port 5000?");
+  }
+}
+
+async function loadChart() {
+  hideAlert("rooms-err");
+  const wrapper = document.getElementById("chart-wrapper");
+  const spinner = document.getElementById("chart-spinner");
+  const img     = document.getElementById("chart-img");
+
+  wrapper.classList.add("show");
+  spinner.classList.add("show");
+  img.style.display = "none";
+
+  try {
+    // Append timestamp to bust browser cache on repeated clicks
+    const url = `${API}/api/rooms/chart?t=${Date.now()}`;
+    img.onload  = () => { spinner.classList.remove("show"); img.style.display = "block"; };
+    img.onerror = () => { spinner.classList.remove("show"); showError("rooms-err", "Failed to load chart."); };
+    img.src = url;
+  } catch (e) {
+    spinner.classList.remove("show");
+    showError("rooms-err", "Cannot reach API — is api.py running on port 5000?");
+  }
+}
+
+// ── Utility: escape HTML ──────────────────────────────────────────────────────
+function esc(str) {
+  if (str == null) return "";
+  return String(str)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;");
+}
+
+// ── Enter key triggers search on input fields ─────────────────────────────────
+document.addEventListener("keydown", e => {
+  if (e.key !== "Enter") return;
+  const active = document.querySelector(".section.active").id;
+  if (active === "sec-speakers")     searchSpeakers();
+  if (active === "sec-attendees")    searchAttendees();
+  if (active === "sec-connections")  viewConnections();
+  if (active === "sec-addAttendee")  addAttendee();
+  if (active === "sec-addConnection") addConnection();
+});
+</script>
 </body>
 </html>

@@ -5,15 +5,14 @@
 # author: Kyra Menai Hamilton
 
 import io
-
-from flask import Flask, jsonify, request, send_file
-from flask_cors import CORS, CORSimport 
-
 import sys
 import os
 
-import matplotlib # Matplotlib must use a non-interactive backend before any other import 
+from flask import Flask, jsonify, request, send_file
+from flask_cors import CORS
 
+# ── Matplotlib must use a non-interactive backend before any other import ──
+import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
@@ -31,17 +30,18 @@ CORS(app)   # Allow the web_ui.html (file://) to call localhost:5000
 db = ConferenceDB(
     mysql_host="localhost",
     mysql_user="root",
-    mysql_password="YOUR_MYSQL_PASSWORD",   # CHANGE THIS
+    mysql_password="root",   # CHANGE THIS
     mysql_database="appdbproj",
     neo4j_uri="bolt://localhost:7687",
     neo4j_user="neo4j",
-    neo4j_password="YOUR_NEO4J_PASSWORD"    # CHANGE THIS
+    neo4j_password="root"    # CHANGE THIS
 )
 
-# ══════════════════════
+
+# ══════════════════════════════════════════════════════════════════════════════
 # 1. Speakers & Sessions
 # GET /api/speakers?name=<search_string>
-# ══════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
 @app.route("/api/speakers", methods=["GET"])
 def get_speakers():
     name = request.args.get("name", "").strip()
@@ -55,10 +55,10 @@ def get_speakers():
     return jsonify(result), 200
 
 
-# ══════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
 # 2. Attendees by Company
 # GET /api/attendees/<company_id>
-# ══════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
 @app.route("/api/attendees/<int:company_id>", methods=["GET"])
 def get_attendees(company_id):
     company_name, rows, err = db.search_attendees_by_company(company_id)
@@ -81,11 +81,11 @@ def get_attendees(company_id):
     return jsonify({"company": company_name, "attendees": result}), 200
 
 
-# ══════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
 # 3. Add New Attendee
 # POST /api/attendee
 # Body (JSON): { attendee_id, name, dob, gender, company_id }
-# ══════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
 @app.route("/api/attendee", methods=["POST"])
 def add_attendee():
     data       = request.get_json(force=True)
@@ -100,10 +100,11 @@ def add_attendee():
         return jsonify({"message": msg}), 201
     return jsonify({"error": msg}), 400
 
-# ══════════════════════
+
+# ══════════════════════════════════════════════════════════════════════════════
 # 4. View Connected Attendees
 # GET /api/connections/<attendee_id>
-# ══════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
 @app.route("/api/connections/<int:attendee_id>", methods=["GET"])
 def get_connections(attendee_id):
     name, rows, err = db.view_connected_attendees(attendee_id)
@@ -115,11 +116,12 @@ def get_connections(attendee_id):
     )
     return jsonify({"name": name, "connections": connections}), 200
 
-# ══════════════════════
+
+# ══════════════════════════════════════════════════════════════════════════════
 # 5. Add Attendee Connection
 # POST /api/connections
 # Body (JSON): { attendee1_id, attendee2_id }
-# ══════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
 @app.route("/api/connections", methods=["POST"])
 def add_connection():
     data = request.get_json(force=True)
@@ -134,10 +136,11 @@ def add_connection():
         return jsonify({"message": msg}), 201
     return jsonify({"error": msg}), 400
 
-# ══════════════════════
+
+# ══════════════════════════════════════════════════════════════════════════════
 # 6. View Rooms  (cached — new rooms won't appear until API restarts)
 # GET /api/rooms
-# ══════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
 @app.route("/api/rooms", methods=["GET"])
 def get_rooms():
     rows, err = db.view_rooms()
@@ -149,10 +152,11 @@ def get_rooms():
     ]
     return jsonify(result), 200
 
-# ══════════════════════
-# 6b. Room Capacity Chart (Matplotlib to PNG)
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 6b. Room Capacity Chart (Matplotlib → PNG)
 # GET /api/rooms/chart
-# ══════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
 @app.route("/api/rooms/chart", methods=["GET"])
 def get_rooms_chart():
     rows, err = db.view_rooms()
@@ -167,7 +171,7 @@ def get_rooms_chart():
     def bar_color(cap):
         if cap >= 200: return "#22c55e"    # green  — large
         if cap >= 100: return "#f59e0b"    # amber  — medium
-        return                "#ef4444"    # red    — small
+        return         "#ef4444"           # red    — small
 
     colors = [bar_color(c) for c in capacities]
 
@@ -222,9 +226,8 @@ def get_rooms_chart():
 
     return send_file(buf, mimetype="image/png")
 
-# ── Run ──
+
+# ── Run ───────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     print("Conference Management API running on http://localhost:5000")
     app.run(debug=True, port=5000)
-
-# END
