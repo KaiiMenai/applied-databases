@@ -1,0 +1,5 @@
+Link to my GitHub:
+
+https://github.com/KaiiMenai/applied-databases/tree/main/main
+
+Main project file is stored in the main branch.
