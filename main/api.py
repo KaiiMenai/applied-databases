@@ -7,13 +7,13 @@
 import io
 
 from flask import Flask, jsonify, request, send_file
-from flask_cors import CORSimport io
+from flask_cors import CORS, CORSimport 
 
 import sys
 import os
 
-# ── Matplotlib must use a non-interactive backend before any other import ──
-import matplotlib
+import matplotlib # Matplotlib must use a non-interactive backend before any other import 
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
