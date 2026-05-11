@@ -458,7 +458,7 @@ tbody td {
   </nav>
 
   <div class="sidebar-footer">
-    API: localhost:5000<br/>
+    Applied Databases Project<br/>
     Kyra Menai Hamilton
   </div>
 </aside>
@@ -764,6 +764,7 @@ async function searchAttendees() {
         <td>${esc(r.session)}</td>
         <td>${esc(r.speaker)}</td>
         <td><span class="badge badge-room">${esc(r.room)}</span></td>
+        <td>${esc(r.session_date)}</td>
       </tr>`).join("");
 
     showResults("attendees-results");
@@ -833,8 +834,7 @@ async function viewConnections() {
     const list = document.getElementById("conn-list");
 
     if (data.connections.length === 0) {
-      document.getElementById("conn-meta").textContent =
-        `Attendee: ${data.name}`;
+      document.getElementById("conn-meta").textContent = `Attendee: ${data.name}`;
       list.innerHTML = `<div class="empty-state">
         <div class="empty-icon">🔗</div>
         No connections found for ${esc(data.name)}.
