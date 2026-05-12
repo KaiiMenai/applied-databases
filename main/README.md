@@ -59,7 +59,23 @@ Innovation files:
 
 ## Notes
 
-Bugs during the running of the api and html. The following fix should be applied for now.
+mysql has some connectivity issues. If bug occurs:
+
+1. Open Services and stop the MySQL service.
+2. Open Notepad and create a file like `C:\mysql-init.txt` containing exactly:
+`ALTER USER 'root'@'localhost' IDENTIFIED BY 'root';`
+3. Open Command Prompt as Administrator.
+4. Change to your MySQL bin folder, for example:
+in powershell
+`cd "C:\Program Files\MySQL\MySQL Server 8.0\bin"`
+5. Start MySQL with the init file:
+in powershell
+`mysqld --init-file=C:\\mysql-init.txt`
+6. After it starts successfully, delete C:\mysql-init.txt.
+7. Start the MySQL service normally again.
+(Ref - asked LLM why I was getting a specific error)
+
+Bugs during the running of the  api and html. The following fix should be applied for now.
 
 Terminal 1: `python api.py`  
 Terminal 2: `python -m http.server 8000`  
