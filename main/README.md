@@ -33,10 +33,11 @@ Innovation files:
 3. Update the MySQL and Neo4j passwords (lines ~450, ~40, respectively) in `main.py` and `api.py`.
 4. Install dependencies:
    `python -m pip install -r requirements.txt`
-5. Run (in console):
+5. Update passwords for MySQL and Neo4j in `main.py` (lines 280 & 284) and `api.py` (lines 33 & 37).
+6. Run (in console):
    `python main.py`
-6. Run (in console): `python api.py` then in web browser (go to): http://127.0.0.1:5000 - *this has been buggy so step 7 was added*.
-7. Run (in new terminal): `python -m http.server 8000` then in web browser (go to): http://localhost:8000/web_ui.html
+7. Run (in console): `python api.py` then in web browser (go to): http://127.0.0.1:5000 - *this has been buggy so step 8 was added*.
+8. Run (in new terminal): `python -m http.server 8000` then in web browser (go to): http://localhost:8000/web_ui.html
 
 ## Endpoints
 
@@ -52,9 +53,9 @@ Innovation files:
 
 ## Innovation
 
-- Web UI using html - make it look pretty - it will be more user friendly imo - if use LLMs save prompt to make clear what I asked.
-- API - Like in web services and applications - use flask (REST API)
-- Matplotlib - room capacity visualisation
+- Web UI Dashboard (HTML/CSS/JavaScript)
+- Flask REST API (7 endpoints)
+- Matplotlib Room Capacity Visualisation
 
 ## Notes
 
