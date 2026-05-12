@@ -1,0 +1,6 @@
+Flask
+flask-cors
+matplotlib
+numpy
+mysql-connector-python
+neo4j
