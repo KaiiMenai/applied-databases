@@ -4,6 +4,8 @@ This project is a menu-driven Python application for the Applied Databases modul
 
 The specifics of this project are for a conference management database/system.
 
+author: Kyra Menai Hamilton
+
 ## Overview
 
 Documents for this project:
@@ -71,8 +73,8 @@ in powershell
 5. Start MySQL with the init file:
 in powershell
 `mysqld --init-file=C:\\mysql-init.txt`
-6. After it starts successfully, delete C:\mysql-init.txt.
-7. Start the MySQL service normally again.
+6. After it starts successfully, delete `C:\mysql-init.txt`.
+7. Start the MySQL service normally again.  
 (Ref - asked LLM why I was getting a specific error)
 
 Bugs during the running of the  api and html. The following fix should be applied for now.
