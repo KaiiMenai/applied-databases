@@ -35,7 +35,7 @@ Innovation files:
    `python -m pip install -r requirements.txt`
 5. Run (in console):
    `python main.py`
-6. Run (in console): `python api.py` then in web browser (go to): http://127.0.0.1:5000 - this has been buggy so step 7 was added.
+6. Run (in console): `python api.py` then in web browser (go to): http://127.0.0.1:5000 - *this has been buggy so step 7 was added*.
 7. Run (in new terminal): `python -m http.server 8000` then in web browser (go to): http://localhost:8000/web_ui.html
 
 ## Endpoints
